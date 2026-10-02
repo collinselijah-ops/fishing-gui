@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Sea Fishing</title>
+  <style>
+    :root {
+      --primary: #0a1428;
+      --secondary: #1a2a3a;
+      --tertiary: #2a4a6a;
+      --accent: #00d4ff;
+      --accent-2: #ffb700;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --text-light: #ecf0f1;
+      --text-dim: #95a5a6;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--primary);
+      color: var(--text-light);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: grid;
+      grid-template-areas: "ocean sidebar";
+      grid-template-columns: 1fr 380px;
+      gap: 0;
+    }
+
+    .ocean-view {
+      grid-area: ocean;
+      position: relative;
+      background: linear-gradient(180deg, #1a3a5a 0%, #0d1f2d 50%, #05131b 100%);
+      overflow: hidden;
+    }
+
+    .sky {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 35%;
+      background: linear-gradient(180deg, #87ceeb 0%, #4a90e2 50%, #1a4d7a 100%);
+      z-index: 1;
+    }
+
+    .sun {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at 30% 30%, #ffe135 0%, #ffb700 60%, #ff8c00 100%);
+      border-radius: 50%;
+      top: 10%;
+      right: 10%;
+      filter: drop-shadow(0 20px 30px rgba(255, 183, 0, 0.3));
+      z-index: 2;
+    }
+
+    .clouds {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 100px;
+      filter: blur(8px);
+    }
+
+    .cloud:nth-child(1) {
+      width: 200px;
+      height: 60px;
+      left: 5%;
+      top: 15%;
+      animation: drift 20s ease-in-out infinite;
+    }
+
+    .cloud:nth-child(2) {
+      width: 180px;
+      height: 50px;
+      right: 8%;
+      top: 25%;
+      animation: drift 24s ease-in-out infinite reverse;
+    }
+
+    .cloud:nth-child(3) {
+      width: 220px;
+      height: 55px;
+      left: 50%;
+      top: 10%;
+      animation: drift 18s ease-in-out infinite;
+    }
+
+    @keyframes drift {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(30px); }
+    }
+
+    .water {
+      position: absolute;
+      top: 35%;
+      left: 0;
+      right: 0;
+      height: 65%;
+      background: linear-gradient(180deg, 
+        rgba(20, 120, 180, 0.8) 0%,
+        rgba(10, 60, 120, 0.9) 40%,
+        rgba(5, 20, 50, 0.95) 100%);
+      z-index: 4;
+      overflow: hidden;
+    }
+
+    .waves {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" /></linearGradient></defs><path d="M0,60 Q300,30 600,60 T1200,60 L1200,120 L0,120 Z" fill="url(%23grad)"/><path d="M0,70 Q300,40 600,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+      background-size: 600px 120px;
+      animation: wave 8s linear infinite;
+    }
+
+    @keyframes wave {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .boat {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 140px;
+      z-index: 10;
+    }
+
+    .boat-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 80px;
+      background: linear-gradient(180deg, #d4844c 0%, #a0562a 100%);
+      border-radius: 30px 30px 40px 40px;
+      box-shadow: 
+        0 10px 20px rgba(0, 0, 0, 0.4),
+        inset -5px -5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .boat-body::before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 20px;
+      background: linear-gradient(180deg, #e8a860 0%, #d4844c 100%);
+      border-radius: 50%;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .boat-window {
+      position: absolute;
+      width: 40px;
+      height: 30px;
+      background: linear-gradient(135deg, #87ceeb 0%, #4da6ff 100%);
+      border-radius: 50%;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 3px solid #333;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .fishing-rod {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 8px;
+      height: 160px;
+      background: linear-gradient(90deg, #2c3e50 0%, #1a1f2e 50%, #34495e 100%);
+      border-radius: 8px;
+      transform-origin: top center;
+      transform: rotate(25deg);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 5;
+    }
+
+    .rod-handle {
+      position: absolute;
+      width: 16px;
+      height: 40px;
+      background: linear-gradient(90deg, #8B4513, #654321);
+      bottom: -35px;
+      right: -4px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .fishing-line {
+      position: absolute;
+      top: 120px;
+      right: 53%;
+      width: 2px;
+      height: 200px;
+      background: linear-gradient(180deg, rgba(200, 200, 200, 0.9), rgba(180, 180, 180, 0.5));
+      transform-origin: top center;
+      transition: height 0.5s ease, opacity 0.3s ease;
+      z-index: 4;
+    }
+
+    .hook {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle at 30% 30%, #ffeb3b, #fbc02d);
+      border-radius: 50%;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
+    }
+
+    .depth-meter {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(10, 20, 30, 0.85);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 15px;
+      width: 200px;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .depth-bar {
+      width: 100%;
+      height: 20px;
+      background: linear-gradient(90deg, #2ecc71 0%, #f39c12 50%, #e74c3c 100%);
+      border-radius: 10px;
+      margin: 10px 0 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .depth-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2ecc71 0%, #f39c12 50%, #e74c3c 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .depth-text {
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .fish-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 6;
+    }
+
+    .fish {
+      position: absolute;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: all 0.3s ease;
+    }
+
+    .fish-body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar {
+      grid-area: sidebar;
+      background: linear-gradient(180deg, #0a1428 0%, #1a2a3a 100%);
+      border-left: 2px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 15;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-section {
+      padding: 20px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+      flex-grow: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .stat-box {
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      color: var(--accent-2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .fish-log {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      height: 200px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+
+    .log-entry {
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      background: rgba(0, 212, 255, 0.05);
+      color: var(--text-light);
+    }
+
+    .log-entry.success {
+      border-left-color: var(--success);
+      background: rgba(46, 204, 113, 0.05);
+    }
+
+    .log-entry.warning {
+      border-left-color: var(--warning);
+      background: rgba(243, 156, 18, 0.05);
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: 2px solid var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: var(--accent);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-cast {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--accent);
+    }
+
+    .btn-reel {
+      border-color: var(--success);
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--success);
+    }
+
+    .btn-reel:hover {
+      background: var(--success);
+      color: var(--primary);
+      box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+    }
+
+    .btn-buy {
+      border-color: var(--accent-2);
+      background: rgba(255, 183, 0, 0.1);
+      color: var(--accent-2);
+    }
+
+    .btn-buy:hover {
+      background: var(--accent-2);
+      color: var(--primary);
+      box-shadow: 0 8px 20px rgba(255, 183, 0, 0.3);
+    }
+
+    .caught-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .caught-item {
+      background: rgba(46, 204, 113, 0.1);
+      border-left: 3px solid var(--success);
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .caught-item .name {
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .caught-item .value {
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .status-message {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-top: 15px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-areas: "ocean" "sidebar";
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 300px;
+      }
+
+      .sidebar {
+        border-left: none;
+        border-top: 2px solid var(--accent);
+        max-height: 300px;
+      }
+
+      .ocean-view {
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ocean-view">
+      <div class="sky">
+        <div class="sun"></div>
+        <div class="clouds">
+          <div class="cloud"></div>
+          <div class="cloud"></div>
+          <div class="cloud"></div>
+        </div>
+      </div>
+
+      <div class="water">
+        <div class="waves"></div>
+        <div class="fish-container" id="fishContainer"></div>
+      </div>
+
+      <div class="depth-meter">
+        <div class="section-title" style="margin-bottom: 5px;">Depth</div>
+        <div class="depth-bar">
+          <div class="depth-fill" id="depthFill"></div>
+        </div>
+        <div class="depth-text" id="depthText">0 / 1000m</div>
+      </div>
+
+      <div class="boat">
+        <div class="boat-body">
+          <div class="boat-window"></div>
+        </div>
+        <div class="fishing-rod" id="rod">
+          <div class="rod-handle"></div>
+        </div>
+        <div class="fishing-line" id="line">
+          <div class="hook"></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">💰 Coins</div>
+            <div class="stat-value" id="coins">500</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">🪝 Bait</div>
+            <div class="stat-value" id="bait">5</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">🎣 Caught</div>
+            <div class="stat-value" id="caught">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">⭐ Level</div>
+            <div class="stat-value" id="level">1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">Controls</div>
+        <div class="button-group">
+          <button class="btn-cast" id="castBtn">🎣 Cast Line</button>
+          <button class="btn-reel" id="reelBtn" disabled>⬆️ Reel In</button>
+          <button class="btn-buy" id="buyBtn">🛒 Buy Bait (15¢)</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">Recent Catches</div>
+        <div class="caught-list" id="caughtList">
+          <div style="color: var(--text-dim); font-size: 0.85rem;">No fish caught yet...</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">Fishing Log</div>
+        <div class="fish-log" id="log">
+          <div class="log-entry">Ready to fish! Cast your line to begin.</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="status-message" id="status">⚓ Welcome aboard! The deeper you go, the rarer the fish.</div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const state = {
+      coins: 500,
+      bait: 5,
+      caught: 0,
+      level: 1,
+      depth: 0,
+      maxDepth: 1000,
+      isCasting: false,
+      hasLineOut: false,
+      currentFish: null,
+      fishOnLine: []
+    };
+
+    const FISH_TYPES = [
+      { name: "Sardine", value: 5, depth: 50, rarity: 0.8, emoji: "🐟", color: "#FFB347" },
+      { name: "Herring", value: 8, depth: 120, rarity: 0.7, emoji: "🐠", color: "#87CEEB" },
+      { name: "Mackerel", value: 12, depth: 150, rarity: 0.6, emoji: "🐟", color: "#4169E1" },
+
+      { name: "Cod", value: 20, depth: 250, rarity: 0.5, emoji: "🐟", color: "#8B4513" },
+      { name: "Sea Bass", value: 25, depth: 300, rarity: 0.45, emoji: "🐠", color: "#228B22" },
+      { name: "Salmon", value: 35, depth: 350, rarity: 0.4, emoji: "🐡", color: "#FF6347" },
+      { name: "Tuna", value: 45, depth: 400, rarity: 0.35, emoji: "🐠", color: "#1E90FF" },
+
+      { name: "Grouper", value: 60, depth: 550, rarity: 0.25, emoji: "🐟", color: "#DAA520" },
+      { name: "Swordfish", value: 80, depth: 600, rarity: 0.2, emoji: "🐡", color: "#2F4F4F" },
+      { name: "Snapper", value: 70, depth: 650, rarity: 0.22, emoji: "🐠", color: "#FF1493" },
+
+      { name: "Anglerfish", value: 120, depth: 800, rarity: 0.1, emoji: "👾", color: "#2B2B2B" },
+      { name: "Gulper Eel", value: 100, depth: 850, rarity: 0.12, emoji: "🐍", color: "#1a1a1a" },
+      { name: "Viperfish", value: 110, depth: 900, rarity: 0.11, emoji: "🦷", color: "#8B0000" },
+      { name: "Kraken (Rare)", value: 500, depth: 1000, rarity: 0.02, emoji: "🦑", color: "#4B0082" }
+    ];
+
+    const elements = {
+      coins: document.getElementById("coins"),
+      bait: document.getElementById("bait"),
+      caught: document.getElementById("caught"),
+      level: document.getElementById("level"),
+      depthFill: document.getElementById("depthFill"),
+      depthText: document.getElementById("depthText"),
+      status: document.getElementById("status"),
+      log: document.getElementById("log"),
+      fishContainer: document.getElementById("fishContainer"),
+      rod: document.getElementById("rod"),
+      line: document.getElementById("line"),
+      castBtn: document.getElementById("castBtn"),
+      reelBtn: document.getElementById("reelBtn"),
+      buyBtn: document.getElementById("buyBtn"),
+      caughtList: document.getElementById("caughtList")
+    };
+
+    function updateHUD() {
+      elements.coins.textContent = state.coins;
+      elements.bait.textContent = state.bait;
+      elements.caught.textContent = state.caught;
+      elements.level.textContent = Math.floor(state.caught / 5) + 1;
+      const percent = (state.depth / state.maxDepth) * 100;
+      elements.depthFill.style.width = percent + "%";
+      elements.depthText.textContent = `${Math.floor(state.depth)} / ${state.maxDepth}m`;
+    }
+
+    function log(message, type = "normal") {
+      const entry = document.createElement("div");
+      entry.className = `log-entry ${type}`;
+      entry.textContent = message;
+      elements.log.insertBefore(entry, elements.log.firstChild);
+      if (elements.log.children.length > 8) elements.log.removeChild(elements.log.lastChild);
+    }
+
+    function setStatus(message) {
+      elements.status.textContent = message;
+    }
+
+    function createFishSVG(color, size) {
+      const gradId = "grad-" + Math.random().toString(36).slice(2);
+      return `
+        <svg class="fish-body" viewBox="0 0 100 60" width="${size}" height="${size * 0.6}">
+          <defs>
+            <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:${shade(color, -30)};stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="50" cy="30" rx="38" ry="22" fill="url(#${gradId})" stroke="${shade(color, -60)}" stroke-width="1"/>
+          <circle cx="20" cy="22" r="5" fill="rgba(255,255,255,0.4)"/>
+          <path d="M85 30 L106 20 L106 40 Z" fill="${shade(color, -15)}"/>
+        </svg>
+      `;
+    }
+
+    function shade(hex, amount) {
+      const color = hex.replace("#", "");
+      const num = parseInt(color, 16);
+      let r = (num >> 16) + amount;
+      let g = ((num >> 8) & 0x00FF) + amount;
+      let b = (num & 0x0000FF) + amount;
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function createFish() {
+      const availableFish = FISH_TYPES.filter(f => f.depth <= state.depth);
+      if (availableFish.length === 0) return null;
+
+      const weighted = availableFish.map(f => ({
+        ...f,
+        weight: f.rarity * (1 - Math.abs(f.depth - state.depth) / 1000)
+      }));
+      const totalWeight = weighted.reduce((sum, f) => sum + Math.max(0.01, f.weight), 0);
+
+      let r = Math.random() * totalWeight;
+      for (const fish of weighted) {
+        r -= Math.max(0.01, fish.weight);
+        if (r <= 0) return fish;
+      }
+      return weighted[weighted.length - 1];
+    }
+
+    function spawnFish(fish) {
+      const fishEl = document.createElement("div");
+      fishEl.className = "fish";
+      const x = Math.random() * 60 + 15;
+      const y = Math.random() * 40 + 20;
+      fishEl.style.left = x + "%";
+      fishEl.style.top = y + "%";
+      const size = 40 + Math.random() * 60;
+      fishEl.innerHTML = createFishSVG(fish.color, size);
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      let posX = x;
+      const move = setInterval(() => {
+        if (!document.contains(fishEl)) { clearInterval(move); return; }
+        posX += direction * 0.25;
+        if (posX < 0 || posX > 90) direction *= -1;
+        fishEl.style.left = posX + "%";
+      }, 35);
+      elements.fishContainer.appendChild(fishEl);
+      return { el: fishEl, data: fish, move };
+    }
+
+    function castLine() {
+      if (state.isCasting || state.hasLineOut) return;
+      if (state.bait <= 0) {
+        setStatus("❌ Out of bait! Buy more to continue fishing.");
+        log("No bait available.", "warning");
+        return;
+      }
+
+      state.bait--;
+      state.isCasting = true;
+      state.hasLineOut = true;
+      elements.castBtn.disabled = true;
+      elements.reelBtn.disabled = false;
+      updateHUD();
+
+      elements.rod.style.transform = "rotate(-35deg)";
+      elements.line.style.height = "450px";
+
+      setStatus("🎣 Casting... deeper into the water...");
+      log("Cast line into the ocean.", "normal");
+
+      const interval = setInterval(() => {
+        if (state.depth < state.maxDepth) {
+          state.depth = Math.min(state.maxDepth, state.depth + 18);
+          updateHUD();
+        } else {
+          clearInterval(interval);
+        }
+      }, 70);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        const fishCount = 2 + Math.floor(state.depth / 250);
+        for (let i = 0; i < fishCount; i++) {
+          const fish = createFish();
+          if (fish) state.fishOnLine.push(spawnFish(fish));
+        }
+
+        setStatus(`🐟 Fish nearby! Depth: ${Math.floor(state.depth)}m`);
+        log(`Fish detected at ${Math.floor(state.depth)}m depth!`, "success");
+
+        setTimeout(() => {
+          if (!state.hasLineOut) return;
+          const target = state.fishOnLine[Math.floor(Math.random() * state.fishOnLine.length)];
+          if (target) {
+            state.currentFish = target;
+            target.el.style.filter = "drop-shadow(0 0 12px rgba(255,255,255,0.8))";
+            setStatus(`🎣 BITE! A ${target.data.name} is on the line!`);
+            log(`${target.data.emoji} ${target.data.name} on the hook!`, "success");
+          }
+        }, 1300);
+      }, 1800);
+    }
+
+    function reelInFish() {
+      if (!state.hasLineOut || !state.currentFish) {
+        setStatus("❌ No fish on the line.");
+        return;
+      }
+
+      const fish = state.currentFish.data;
+      state.coins += fish.value;
+      state.caught += 1;
+      updateHUD();
+
+      setStatus(`✨ Caught a ${fish.name}! +${fish.value} coins!`);
+      log(`${fish.emoji} Caught ${fish.name} for ${fish.value} coins!`, "success");
+
+      const item = document.createElement("div");
+      item.className = "caught-item";
+      item.innerHTML = `<span class="name">${fish.emoji} ${fish.name}</span><span class="value">+${fish.value}</span>`;
+      elements.caughtList.insertBefore(item, elements.caughtList.firstChild);
+      if (elements.caughtList.children.length > 5) elements.caughtList.removeChild(elements.caughtList.lastChild);
+
+      resetFishing();
+    }
+
+    function buyBait() {
+      if (state.coins < 15) {
+        setStatus("❌ Not enough coins! You need 15 to buy bait.");
+        log("Insufficient funds for bait.", "warning");
+        return;
+      }
+
+      state.coins -= 15;
+      state.bait += 2;
+      updateHUD();
+      setStatus("✅ Purchased 2 bait!");
+      log("Bought 2 bait packs for 15 coins.", "success");
+    }
+
+    function resetFishing() {
+      state.isCasting = false;
+      state.hasLineOut = false;
+      state.currentFish = null;
+      state.fishOnLine = [];
+      elements.fishContainer.innerHTML = "";
+      elements.castBtn.disabled = false;
+      elements.reelBtn.disabled = true;
+      elements.rod.style.transform = "rotate(25deg)";
+      elements.line.style.height = "200px";
+      state.depth = 0;
+      updateHUD();
+    }
+
+    elements.castBtn.addEventListener("click", castLine);
+    elements.reelBtn.addEventListener("click", reelInFish);
+    elements.buyBtn.addEventListener("click", buyBait);
+
+    updateHUD();
+  </script>
+</body>
+</html>
